@@ -110,6 +110,11 @@ VRAMLoad_t      VRAMRead;
 int             iDataWriteMode;
 int             iDataReadMode;
 
+void  GPUwriteDataMem_Normal(uint32_t *, int );
+void GPUwriteDataMem_VramTransfer(uint32_t *, int );
+
+void  ( *GPUwriteDataMemFunc[2]) (uint32_t *, int ) = {GPUwriteDataMem_Normal,GPUwriteDataMem_VramTransfer};
+
 int             lClearOnSwap;
 int             lClearOnSwapColor;
 BOOL            bSkipNextFrame = FALSE;
@@ -2513,6 +2518,133 @@ const unsigned char primTableCX[256] =
 // processes data send to GPU data register
 ////////////////////////////////////////////////////////////////////////
 
+void CALLBACK GPUwriteDataMem_VramTransfer(uint32_t *pMem, int iSize)
+{
+ unsigned char command;
+ uint32_t gdata=0;
+ int i=0;
+ GPUIsBusy;
+ GPUIsNotReadyForCommands;
+
+STARTVRAM:
+
+   // make sure we are in vram
+   while(VRAMWrite.ImagePtr>=psxVuw_eom)
+    VRAMWrite.ImagePtr-=iGPUHeight*1024;
+   while(VRAMWrite.ImagePtr<psxVuw)
+    VRAMWrite.ImagePtr+=iGPUHeight*1024;
+
+   // now do the loop
+   while(VRAMWrite.ColsRemaining>0)
+    {
+     while(VRAMWrite.RowsRemaining>0)
+      {
+       if(i>=iSize) {goto ENDVRAM;}
+       i++;
+
+       gdata=*pMem++;
+
+       *VRAMWrite.ImagePtr++ = (unsigned short)gdata;
+       if(VRAMWrite.ImagePtr>=psxVuw_eom) VRAMWrite.ImagePtr-=iGPUHeight*1024;
+       VRAMWrite.RowsRemaining --;
+
+       if(VRAMWrite.RowsRemaining <= 0)
+        {
+         VRAMWrite.ColsRemaining--;
+         if (VRAMWrite.ColsRemaining <= 0)             // last pixel is odd width
+          {
+           gdata=(gdata&0xFFFF)|(((uint32_t)(*VRAMWrite.ImagePtr))<<16);
+           FinishedVRAMWrite();
+           goto ENDVRAM;
+          }
+         VRAMWrite.RowsRemaining = VRAMWrite.Width;
+         VRAMWrite.ImagePtr += 1024 - VRAMWrite.Width;
+        }
+
+       *VRAMWrite.ImagePtr++ = (unsigned short)(gdata>>16);
+       if(VRAMWrite.ImagePtr>=psxVuw_eom) VRAMWrite.ImagePtr-=iGPUHeight*1024;
+       VRAMWrite.RowsRemaining --;
+      }
+
+     VRAMWrite.RowsRemaining = VRAMWrite.Width;
+     VRAMWrite.ColsRemaining--;
+     VRAMWrite.ImagePtr += 1024 - VRAMWrite.Width;
+    }
+
+   FinishedVRAMWrite();
+
+
+ENDVRAM:
+
+ GPUdataRet=gdata;
+
+ GPUIsReadyForCommands;
+ GPUIsIdle;                
+
+}	
+
+void CALLBACK GPUwriteDataMem_Normal(uint32_t *pMem, int iSize)
+{
+ unsigned char command;
+ uint32_t gdata=0;
+ int i=0;
+ GPUIsBusy;
+ GPUIsNotReadyForCommands;
+
+   void (* *primFunc)(unsigned char *);
+   if(bSkipNextFrame) primFunc=primTableSkip;
+   else               primFunc=primTableJ;
+
+   for(;i<iSize;)
+    {
+     gdata=*pMem++;i++;
+ 
+     if(gpuDataC == 0)
+      {
+       command = (unsigned char)((gdata>>24) & 0xff);
+ 
+       if(primTableCX[command])
+        {
+         gpuDataC = primTableCX[command];
+         gpuCommand = command;
+         gpuDataM[0] = gdata;
+         gpuDataP = 1;
+        }
+       else continue;
+      }
+     else
+      {
+       gpuDataM[gpuDataP] = gdata;
+       if(gpuDataC>128)
+        {
+         if((gpuDataC==254 && gpuDataP>=3) ||
+            (gpuDataC==255 && gpuDataP>=4 && !(gpuDataP&1)))
+          {
+           if((gpuDataM[gpuDataP] & 0xF000F000) == 0x50005000)
+            gpuDataP=gpuDataC-1;
+          }
+        }
+       gpuDataP++;
+      }
+ 
+     if(gpuDataP == gpuDataC)
+      {
+       gpuDataC=gpuDataP=0;
+       primFunc[gpuCommand]((unsigned char *)gpuDataM);
+
+       if(dwEmuFixes&0x0001 || dwActFixes&0x20000)     // hack for emulating "gpu busy" in some games
+        iFakePrimBusy=4;
+      }
+    } 
+
+ GPUdataRet=gdata;
+
+ GPUIsReadyForCommands;
+ GPUIsIdle;                
+}
+
+
+
 void CALLBACK GPUwriteDataMem(uint32_t *pMem, int iSize)
 {
  unsigned char command;
@@ -2581,8 +2713,6 @@ ENDVRAM:
 
    for(;i<iSize;)
     {
-//     if(iDataWriteMode==DR_VRAMTRANSFER) goto STARTVRAM;
-
      gdata=*pMem++;i++;
  
      if(gpuDataC == 0)
