@@ -443,9 +443,9 @@ long CALLBACK GPUinit()
 
  // different ways of accessing PSX VRAM
 
- psxVSecure=(unsigned char *)malloc((iGPUHeight*2)*1024 + (1024*1024)); // always alloc one extra MB for soft drawing funcs security
- if(!psxVSecure) return -1;
-
+ if (posix_memalign(&psxVSecure,8,(iGPUHeight*2)*1024 + (1024*1024)) != 0) // always alloc one extra MB for soft drawing funcs security
+	return -1;
+ 
  psxVub=psxVSecure+512*1024;                           // security offset into double sized psx vram!
  psxVsb=(signed char *)psxVub;
  psxVsw=(signed short *)psxVub;
@@ -681,7 +681,8 @@ void sysdep_create_display(void)                       // create display
 
    memset(&b,0,sizeof(XColor));
    memset(&w,0,sizeof(XColor));
-   idata=(unsigned char *)malloc(8);
+
+   posix_memalign(&idata,8,8);
    memset(idata,0,8);
 
    p1=XCreatePixmap(display,RootWindow(display,myvisual->screen),8,8,1);
@@ -2520,9 +2521,9 @@ const unsigned char primTableCX[256] =
 
 void CALLBACK GPUwriteDataMem_VramTransfer(uint32_t *pMem, int iSize)
 {
- unsigned char command;
  uint32_t gdata=0;
  int i=0;
+
  GPUIsBusy;
  GPUIsNotReadyForCommands;
 
@@ -2573,14 +2574,12 @@ STARTVRAM:
 
    FinishedVRAMWrite();
 
-
 ENDVRAM:
 
  GPUdataRet=gdata;
 
  GPUIsReadyForCommands;
  GPUIsIdle;                
-
 }	
 
 void CALLBACK GPUwriteDataMem_Normal(uint32_t *pMem, int iSize)
@@ -2588,6 +2587,7 @@ void CALLBACK GPUwriteDataMem_Normal(uint32_t *pMem, int iSize)
  unsigned char command;
  uint32_t gdata=0;
  int i=0;
+
  GPUIsBusy;
  GPUIsNotReadyForCommands;
 
@@ -3214,6 +3214,7 @@ void CALLBACK GPUgetScreenPic(unsigned char * pMem)
  if(!pGfxCardScreen)
   {
    glPixelStorei(GL_PACK_ALIGNMENT,1);
+   pGfxCardScreen=(unsigned char *)malloc(iResX*iResY*4);
    pGfxCardScreen=(unsigned char *)malloc(iResX*iResY*4);
   }
 
