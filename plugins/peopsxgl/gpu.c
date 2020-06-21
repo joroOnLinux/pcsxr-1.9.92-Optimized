@@ -2764,7 +2764,7 @@ ENDVRAM:
 
 void CALLBACK GPUwriteData(uint32_t gdata)
 {
- GPUwriteDataMem(&gdata,1);
+   ( *GPUwriteDataMemFunc[iDataWriteMode])(&gdata,1);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -2871,7 +2871,7 @@ long CALLBACK GPUdmaChain(uint32_t *baseAddrL, uint32_t addr)
 
    dmaMem=addr+4;
 
-   if(count>0) GPUwriteDataMem(&baseAddrL[dmaMem>>2],count);
+   if(count>0) ( *GPUwriteDataMemFunc[iDataWriteMode])(&baseAddrL[dmaMem>>2],count);
 
    addr = baseAddrL[addr>>2]&0xffffff;
   }
