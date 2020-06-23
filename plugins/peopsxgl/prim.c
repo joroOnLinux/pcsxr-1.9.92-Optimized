@@ -4520,7 +4520,7 @@ void primNI(unsigned char *bA)
 // cmd func ptr table
 ////////////////////////////////////////////////////////////////////////
 
-void (*primTableJ[256])(unsigned char *) = 
+void (*primTable[256][2])(unsigned char *) = 
 {
     // 00
     primNI,primNI,primBlkFill,primNI,primNI,primNI,primNI,primNI,
@@ -4585,15 +4585,15 @@ void (*primTableJ[256])(unsigned char *) =
     // f0
     primNI,primNI,primNI,primNI,primNI,primNI,primNI,primNI,
     // f8
-    primNI,primNI,primNI,primNI,primNI,primNI,primNI,primNI
-};
+    primNI,primNI,primNI,primNI,primNI,primNI,primNI,primNI,
+//};
 
 ////////////////////////////////////////////////////////////////////////
 // cmd func ptr table for skipping
 ////////////////////////////////////////////////////////////////////////
 
-void (*primTableSkip[256])(unsigned char *) = 
-{
+//void (*primTableSkip[256])(unsigned char *) = 
+//{
     // 00
     primNI,primNI,primBlkFill,primNI,primNI,primNI,primNI,primNI,
     // 08
