@@ -1,3 +1,10 @@
+PCSX-Reloaded Optimized
+-------------------------------
+
+This is a version of the pcsxr emulator modifying some of the
+braindead, sorry, not-so-optimal code in the original sources,
+especially in the peopsxgl plugin
+
 PCSX-Reloaded
 -------------------------------
 
