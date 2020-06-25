@@ -2522,7 +2522,7 @@ const unsigned char primTableCX[256] =
 void CALLBACK GPUwriteDataMem_VramTransfer(uint32_t *pMem, int iSize)
 {
  uint32_t gdata=0;
- int i=0;
+// int i=0;
 
  GPUIsBusy;
  GPUIsNotReadyForCommands;
@@ -2538,26 +2538,14 @@ void CALLBACK GPUwriteDataMem_VramTransfer(uint32_t *pMem, int iSize)
     {
      while(VRAMWrite.RowsRemaining>0)
       {
-       if(i>=iSize) {goto ENDVRAM;}
-       i++;
+//       if(i>=iSize) {goto ENDVRAM;}
+//       i++;
 
        gdata=*pMem++;
 
-       *VRAMWrite.ImagePtr++ = (unsigned short)gdata;
+       *(uint32_t *)VRAMWrite.ImagePtr++ = (unsigned short) (gdata << 16) | (unsigned short) (gdata>>16);
 
-       VRAMWrite.RowsRemaining --;
-
-       if(VRAMWrite.RowsRemaining <= 0)
-        {
-         VRAMWrite.ColsRemaining--;
-
-         VRAMWrite.RowsRemaining = VRAMWrite.Width;
-         VRAMWrite.ImagePtr += 1024 - VRAMWrite.Width;
-        }
-
-       *VRAMWrite.ImagePtr++ = (unsigned short)(gdata>>16);
-
-       VRAMWrite.RowsRemaining --;
+       VRAMWrite.RowsRemaining -= 2;
       }
 
      VRAMWrite.RowsRemaining = VRAMWrite.Width;
@@ -2579,18 +2567,14 @@ void CALLBACK GPUwriteDataMem_Normal(uint32_t *pMem, int iSize)
 {
  unsigned char command;
  uint32_t gdata=0;
- int i=0;
+ int i;
 
  GPUIsBusy;
  GPUIsNotReadyForCommands;
 
-   void (* *primFunc)(unsigned char *);
-   if(bSkipNextFrame) primFunc=primTableSkip;
-   else               primFunc=primTableJ;
-
-   for(;i<iSize;)
+   for(i=0;i<iSize;i++)
     {
-     gdata=*pMem++;i++;
+     gdata=*pMem++;
  
      if(gpuDataC == 0)
       {
@@ -2623,7 +2607,7 @@ void CALLBACK GPUwriteDataMem_Normal(uint32_t *pMem, int iSize)
      if(gpuDataP == gpuDataC)
       {
        gpuDataC=gpuDataP=0;
-       primFunc[gpuCommand]((unsigned char *)gpuDataM);
+       (*primTable[bSkipNextFrame][gpuCommand]) ((unsigned char *)gpuDataM);
 
        if(dwEmuFixes&0x0001 || dwActFixes&0x20000)     // hack for emulating "gpu busy" in some games
         iFakePrimBusy=4;
@@ -2729,8 +2713,11 @@ long CALLBACK GPUdmaChain(uint32_t *baseAddrL, uint32_t addr)
  unsigned char * baseAddrB;
  short count;unsigned int DMACommandCounter = 0;
 
- if(bIsFirstFrame) GLinitialize();
-
+ if(bIsFirstFrame){
+	  GLinitialize();
+	  bIsFirstFrame = FALSE;
+ }
+ 
  GPUIsBusy;
 
  lUsedAddr[0]=lUsedAddr[1]=lUsedAddr[2]=0xffffff;
