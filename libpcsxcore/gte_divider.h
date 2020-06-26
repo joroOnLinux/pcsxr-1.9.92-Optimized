@@ -4101,6 +4101,17 @@ static u16 initial_guess[32768] = {
 };
 
 // note: returns 16.16 fixed-point
+#ifdef __ARM_FEATURE_IDIV
+static inline u32 DIVIDE(s16 n, u16 d) {
+	if (n >= 0 && n < d * 2) {
+		return (uint32_t) ((n <<16) / d) ;
+	}
+	else{
+		return 0xffffffff;	
+	}	
+}
+#else
+
 static inline u32 DIVIDE(s16 n, u16 d) {
 	if (n >= 0 && n < d * 2) {
 		u32 offset = d;
@@ -4130,4 +4141,4 @@ static inline u32 DIVIDE(s16 n, u16 d) {
 
 	return 0xffffffff;
 }
-
+#endif
