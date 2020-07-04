@@ -4855,18 +4855,8 @@ GLuint SelectSubTextureS(int TextureMode, uint32_t GivenClutId)
 
    GivenClutId = (GivenClutId&CLUTMASK) | (DrawSemiTrans<<30) | 0x80000000;
 
-   // palette check sum.. removed MMX asm, this easy func works as well
-    {
-     uint32_t l=0,row;
-
-     uint32_t *lSRCPtr = (uint32_t *)(psxVuw+cx+(cy*1024));
-
-     if(TextureMode==1) for(row=1;row<129;row++) l+=((*lSRCPtr++)-1)*row;
-     else               for(row=1;row<9;row++)   l+=((*lSRCPtr++)-1)<<row;
-
-     l=(l+HIWORD(l))&0x3fffL;
-     GivenClutId|=(l<<16);
-    }
+   GivenClutId |= PaletteCheckSum(TextureMode,cx,cy) <<16;
+    
   }
 
  // search cache
