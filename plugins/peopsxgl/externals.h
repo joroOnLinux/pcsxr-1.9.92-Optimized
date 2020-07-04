@@ -22,8 +22,6 @@
 // for own sow/tow scaling
 #define OWNSCALE 1
 
-#define CLUTUSED     0x80000000
-
 #define SETCOL(x)  if(x.c.lcol!=ulOLDCOL) {ulOLDCOL=x.c.lcol;glColor4ubv(x.c.col);} 
 #define SETPCOL(x)  if(x->c.lcol!=ulOLDCOL) {ulOLDCOL=x->c.lcol;glColor4ubv(x->c.col);}
 

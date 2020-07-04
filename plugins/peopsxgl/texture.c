@@ -1863,17 +1863,7 @@ GLuint LoadTextureWnd(int pageid, int TextureMode, uint32_t GivenClutId)
    cx = ((GivenClutId << 4) & 0x3F0);
    cy = ((GivenClutId >> 6) & CLUTYMASK);
    GivenClutId = (GivenClutId & CLUTMASK) | (DrawSemiTrans << 30);
-
-   // palette check sum
-    {
-     uint32_t l = 0,row;
-     uint32_t *lSRCPtr = (uint32_t *)(psxVuw + cx + (cy * 1024));
-     if(TextureMode==1) for(row=1;row<129;row++) l+=((*lSRCPtr++)-1)*row;
-     else               for(row=1;row<9;row++)   l+=((*lSRCPtr++)-1)<<row;
-     l=(l+HIWORD(l))&0x3fffL;
-     GivenClutId|=(l<<16);
-    }
-
+   GivenClutId |= PaletteCheckSum(TextureMode,cx,cy) << 16;
   }
 
  ts=wcWndtexStore;
@@ -4705,8 +4695,11 @@ void CompressTextureSpace(void)
  opos.l=*((uint32_t *)&gl_ux[4]);
 
  // 1. mark all textures as free
- for(i=0;i<iSortTexCnt;i++)
-  {ul=pxSsubtexLeft[i];ul->l=0;}
+ for(i=0;i<iSortTexCnt;i++){ 
+	 ul=pxSsubtexLeft[i];
+	 ul->l=0;
+ }
+ 
  usLRUTexPage=0;
 
  // 2. compress
@@ -4754,12 +4747,7 @@ void CompressTextureSpace(void)
 
              if(j!=2)
               {
-               // palette check sum
-               l=0;lSRCPtr=(uint32_t *)(psxVuw+cx+(cy*1024));
-               if(j==1) for(row=1;row<129;row++) l+=((*lSRCPtr++)-1)*row;
-               else     for(row=1;row<9;row++)   l+=((*lSRCPtr++)-1)<<row;
-               l=((l+HIWORD(l))&0x3fffL)<<16;
-               if(l!=(tsx->ClutID&(0x00003fff<<16)))
+               if ( PaletteCheckSum(j,cx,cy) != (tsx->ClutID&(0x00003fff<<16)))
                 {
                  tsx->ClutID=0;continue;
                 }
@@ -4835,29 +4823,27 @@ GLuint SelectSubTextureS(int TextureMode, uint32_t GivenClutId)
  // sort sow/tow infos for fast access
 
  unsigned char ma1,ma2,mi1,mi2;
- if(gl_ux[0]>gl_ux[1]) {mi1=gl_ux[1];ma1=gl_ux[0];}
- else                  {mi1=gl_ux[0];ma1=gl_ux[1];}
- if(gl_ux[2]>gl_ux[3]) {mi2=gl_ux[3];ma2=gl_ux[2];}
- else                  {mi2=gl_ux[2];ma2=gl_ux[3];}
- if(mi1>mi2) gl_ux[7]=mi2; 
- else        gl_ux[7]=mi1;
- if(ma1>ma2) gl_ux[6]=ma1; 
- else        gl_ux[6]=ma2;
 
- if(gl_vy[0]>gl_vy[1]) {mi1=gl_vy[1];ma1=gl_vy[0];}
- else                  {mi1=gl_vy[0];ma1=gl_vy[1];}
- if(gl_vy[2]>gl_vy[3]) {mi2=gl_vy[3];ma2=gl_vy[2];}
- else                  {mi2=gl_vy[2];ma2=gl_vy[3];}
- if(mi1>mi2) gl_ux[5]=mi2; 
- else        gl_ux[5]=mi1;
- if(ma1>ma2) gl_ux[4]=ma1; 
- else        gl_ux[4]=ma2;
+ mi1 = min(gl_ux[0],gl_ux[1]);
+ ma1 = max(gl_ux[0],gl_ux[1]);
+
+ mi2 = min(gl_ux[2],gl_ux[3]);
+ ma2 = max(gl_ux[2],gl_ux[3]);
+
+ gl_ux[7]=min(mi1,mi2);
+ gl_ux[6]=max(ma1,ma2);
+
+ mi1=min(gl_vy[0],gl_vy[1]);
+ mi2=min(gl_vy[2],gl_vy[3]);
+
+ gl_ux[5]=min(mi1,mi2);
+ gl_ux[4]=max(ma1,ma2);
 
  // get clut infos in one 32 bit val
 
  if(TextureMode==2)                                    // no clut here
   {
-   GivenClutId=CLUTUSED|(DrawSemiTrans<<30);cx=cy=0;
+   GivenClutId= 0x80000000 | (DrawSemiTrans<<30);cx=cy=0;
  
    if(iFrameTexType && Fake15BitTexture()) 
     return (GLuint)gTexName;
@@ -4866,19 +4852,21 @@ GLuint SelectSubTextureS(int TextureMode, uint32_t GivenClutId)
   {
    cx=((GivenClutId << 4) & 0x3F0);                    // but here
    cy=((GivenClutId >> 6) & CLUTYMASK);
-   GivenClutId=(GivenClutId&CLUTMASK)|(DrawSemiTrans<<30)|CLUTUSED;
+
+   GivenClutId = (GivenClutId&CLUTMASK) | (DrawSemiTrans<<30) | 0x80000000;
 
    // palette check sum.. removed MMX asm, this easy func works as well
     {
      uint32_t l=0,row;
 
      uint32_t *lSRCPtr = (uint32_t *)(psxVuw+cx+(cy*1024));
+
      if(TextureMode==1) for(row=1;row<129;row++) l+=((*lSRCPtr++)-1)*row;
      else               for(row=1;row<9;row++)   l+=((*lSRCPtr++)-1)<<row;
+
      l=(l+HIWORD(l))&0x3fffL;
      GivenClutId|=(l<<16);
     }
-
   }
 
  // search cache
@@ -4903,6 +4891,22 @@ GLuint SelectSubTextureS(int TextureMode, uint32_t GivenClutId)
  *OPtr=ubOpaqueDraw;
  return (GLuint) gTexName;
 }
+
+inline uint32_t PaletteCheckSum(int TextureMode,short cx,short cy){
+
+     uint32_t l = 0,row;
+     uint32_t *lSRCPtr = (uint32_t *)(psxVuw + cx + (cy * 1024));
+     
+     if(TextureMode==1) 
+		for(row=1;row<129;row++) 
+			l+=((*lSRCPtr++)-1)*row;
+     else               
+		for(row=1;row<9;row++)   
+			l+=((*lSRCPtr++)-1)<<row;
+			
+     l=(l+HIWORD(l))&0x3fffL;
+     return(l);
+ }
 
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////

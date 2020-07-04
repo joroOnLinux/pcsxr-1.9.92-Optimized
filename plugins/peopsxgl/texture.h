@@ -36,6 +36,8 @@ void           LoadSubTexturePage(int pageid, int mode, short cx, short cy);
 void           LoadSubTexturePageSort(int pageid, int mode, short cx, short cy);
 void           LoadPackedSubTexturePage(int pageid, int mode, short cx, short cy);
 void           LoadPackedSubTexturePageSort(int pageid, int mode, short cx, short cy);
+uint32_t PaletteCheckSum(int TextureMode,short cx,short cy);
+
 uint32_t       XP8RGBA(uint32_t BGR);
 uint32_t       XP8RGBAEx(uint32_t BGR);
 uint32_t       XP8RGBA_0(uint32_t BGR);
