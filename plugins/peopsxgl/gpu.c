@@ -2583,12 +2583,14 @@ void CALLBACK GPUwriteDataMem_Normal(uint32_t *pMem, int iSize)
          gpuDataP = 1;
         }
     else return;
-   
-   for(i=1;i<iSize;i++)
+
+// and now the rest   
+   for(i=0;i<iSize-1;i++)
     {
      gdata=*pMem++;
 
      gpuDataM[gpuDataP] = gdata;
+     
        if(gpuDataC>128)
         {
          if((gpuDataC==254 && gpuDataP>=3) ||
@@ -2708,7 +2710,8 @@ long CALLBACK GPUdmaChain(uint32_t *baseAddrL, uint32_t addr)
 {
  uint32_t dmaMem;
  unsigned char * baseAddrB;
- short count;unsigned int DMACommandCounter = 0;
+ short count;
+ unsigned int DMACommandCounter = 0;
 
  if(bIsFirstFrame){
 	  GLinitialize();
@@ -2725,7 +2728,7 @@ long CALLBACK GPUdmaChain(uint32_t *baseAddrL, uint32_t addr)
   {
    if(iGPUHeight==512) addr&=0x1FFFFC;
 
-   if(DMACommandCounter++ > 2000000) break;
+//   if(DMACommandCounter++ > 2000000) break;
    if(CheckForEndlessLoop(addr)) break;
 
    count = baseAddrB[addr+3];
