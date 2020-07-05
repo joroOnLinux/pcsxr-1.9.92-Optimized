@@ -2572,26 +2572,23 @@ void CALLBACK GPUwriteDataMem_Normal(uint32_t *pMem, int iSize)
  GPUIsBusy;
  GPUIsNotReadyForCommands;
 
-   for(i=0;i<iSize;i++)
-    {
-     gdata=*pMem++;
- 
-     if(gpuDataC == 0)
-      {
-       command = (unsigned char)((gdata>>24) & 0xff);
- 
-       if(primTableCX[command])
-        {
+// get GPU command first
+   gdata = *pMem++;
+   command = (unsigned char)((gdata >> 24) & 0xff);
+
+   if(primTableCX[command]){
          gpuDataC = primTableCX[command];
          gpuCommand = command;
          gpuDataM[0] = gdata;
          gpuDataP = 1;
         }
-       else continue;
-      }
-     else
-      {
-       gpuDataM[gpuDataP] = gdata;
+    else return;
+   
+   for(i=1;i<iSize;i++)
+    {
+     gdata=*pMem++;
+
+     gpuDataM[gpuDataP] = gdata;
        if(gpuDataC>128)
         {
          if((gpuDataC==254 && gpuDataP>=3) ||
@@ -2612,7 +2609,7 @@ void CALLBACK GPUwriteDataMem_Normal(uint32_t *pMem, int iSize)
        if(dwEmuFixes&0x0001 || dwActFixes&0x20000)     // hack for emulating "gpu busy" in some games
         iFakePrimBusy=4;
       }
-    } 
+//    } 
 
  GPUdataRet=gdata;
 
