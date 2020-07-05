@@ -23,7 +23,7 @@
 
 void           InitializeTextureStore();
 void           CleanupTextureStore();
-GLuint         LoadTextureWnd(int pageid, int TextureMode, uint32_t GivenClutId);
+GLuint         LoadTextureWnd(int TextureMode, uint32_t GivenClutId);
 GLuint         LoadTextureMovie(void);
 void           InvalidateTextureArea(int imageX0, int imageY0, int imageX1, int imageY1);
 void           InvalidateTextureAreaEx(void);
@@ -32,10 +32,10 @@ void           ResetTextureArea(BOOL bDelTex);
 GLuint         SelectSubTextureS(int TextureMode, uint32_t GivenClutId);
 void           CheckTextureMemory(void);
 
-void           LoadSubTexturePage(int pageid, int mode, short cx, short cy);
-void           LoadSubTexturePageSort(int pageid, int mode, short cx, short cy);
-void           LoadPackedSubTexturePage(int pageid, int mode, short cx, short cy);
-void           LoadPackedSubTexturePageSort(int pageid, int mode, short cx, short cy);
+void           LoadSubTexturePage(int mode, short cx, short cy);
+void           LoadSubTexturePageSort(int mode, short cx, short cy);
+void           LoadPackedSubTexturePage(int mode, short cx, short cy);
+void           LoadPackedSubTexturePageSort(int mode, short cx, short cy);
 uint32_t PaletteCheckSum(int TextureMode,short cx,short cy);
 
 uint32_t       XP8RGBA(uint32_t BGR);
