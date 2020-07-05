@@ -949,7 +949,7 @@ void LoadStretchPackedWndTexturePage(int mode, short cx, short cy)
  unsigned short *wSRCPtr,*wOSRCPtr;
  uint32_t        LineOffset;
  unsigned short  s;
- int pmult = GlobalTexturePage / 16;
+ 
  unsigned short (*LPTCOL)(unsigned short);
 
  LPTCOL = PTCF[DrawSemiTrans];
@@ -969,7 +969,7 @@ void LoadStretchPackedWndTexturePage(int mode, short cx, short cy)
    // 4bit texture load ..
    case 0:
 
-    start=((GlobalTexturePage-16*pmult)*128)+256*2048*pmult;
+    start=256 * 2048 * GlobalTexturePage / 16;
 
     // convert CLUT to 32bits .. and then use THAT as a lookup table
 
@@ -1027,7 +1027,7 @@ void LoadStretchPackedWndTexturePage(int mode, short cx, short cy)
    //--------------------------------------------------// 
    // 8bit texture load ..
    case 1:
-    start=((GlobalTexturePage-16*pmult)*128)+256*2048*pmult;
+    start=256 * 2048 * GlobalTexturePage / 16;
 
     // not using a lookup table here... speeds up smaller texture areas
     cSRCPtr = psxVub + start + (2048*g_y1) + g_x1;
@@ -1059,7 +1059,7 @@ void LoadStretchPackedWndTexturePage(int mode, short cx, short cy)
    //--------------------------------------------------// 
    // 16bit texture load ..
    case 2:
-    start=((GlobalTexturePage-16*pmult)*64)+256*1024*pmult;
+    start=256*1024*GlobalTexturePage / 16;
     wSRCPtr = psxVuw + start + (1024*g_y1) + g_x1;
     LineOffset = 1024 - (g_x2-g_x1+1) +ldxo; 
                                 
@@ -1103,7 +1103,7 @@ void LoadStretchWndTexturePage(int mode, short cx, short cy)
  unsigned char  *cSRCPtr,*cOSRCPtr;
  unsigned short *wSRCPtr,*wOSRCPtr;
  uint32_t       LineOffset;
- int            pmult = GlobalTexturePage / 16;
+ 
  uint32_t       (*LTCOL)(uint32_t);
  
  LTCOL = TCF[DrawSemiTrans];
@@ -1122,7 +1122,7 @@ void LoadStretchWndTexturePage(int mode, short cx, short cy)
    //--------------------------------------------------// 
    // 4bit texture load ..
    case 0:
-    start=((GlobalTexturePage-16*pmult)*128)+256*2048*pmult;
+    start=256*2048*GlobalTexturePage / 16;
     // convert CLUT to 32bits .. and then use THAT as a lookup table
 
     wSRCPtr=psxVuw+palstart;
@@ -1176,7 +1176,7 @@ void LoadStretchWndTexturePage(int mode, short cx, short cy)
    //--------------------------------------------------//
    // 8bit texture load ..
    case 1:
-    start=((GlobalTexturePage-16*pmult)*128)+256*2048*pmult;    
+    start=256*2048*GlobalTexturePage / 16;    
 
     // not using a lookup table here... speeds up smaller texture areas
     cSRCPtr = psxVub + start + (2048*g_y1) + g_x1;
@@ -1208,7 +1208,7 @@ void LoadStretchWndTexturePage(int mode, short cx, short cy)
    //--------------------------------------------------// 
    // 16bit texture load ..
    case 2:
-    start=((GlobalTexturePage-16*pmult)*64)+256*1024*pmult;
+    start=256*1024*GlobalTexturePage / 16;
 
     wSRCPtr = psxVuw + start + (1024*g_y1) + g_x1;
     LineOffset = 1024 - (g_x2-g_x1+1) +ldxo; 
@@ -1253,7 +1253,7 @@ void LoadPackedWndTexturePage(int mode, short cx, short cy)
  unsigned char  *cSRCPtr;
  unsigned short *wSRCPtr;
  uint32_t        LineOffset;
- int pmult=GlobalTexturePage/16;
+ 
  unsigned short (*LPTCOL)(unsigned short);
 
  LPTCOL=PTCF[DrawSemiTrans];
@@ -1269,7 +1269,7 @@ void LoadPackedWndTexturePage(int mode, short cx, short cy)
    //--------------------------------------------------// 
    // 4bit texture load ..
    case 0:
-    start=((GlobalTexturePage-16*pmult)*128)+256*2048*pmult;
+    start=256*2048*GlobalTexturePage / 16;
 
     // convert CLUT to 32bits .. and then use THAT as a lookup table
 
@@ -1299,7 +1299,7 @@ void LoadPackedWndTexturePage(int mode, short cx, short cy)
    //--------------------------------------------------// 
    // 8bit texture load ..
    case 1:
-    start=((GlobalTexturePage-16*pmult)*128)+256*2048*pmult;
+    start=256*2048*GlobalTexturePage / 16;
 
     // not using a lookup table here... speeds up smaller texture areas
     cSRCPtr = psxVub + start + (2048*g_y1) + g_x1;
@@ -1317,7 +1317,7 @@ void LoadPackedWndTexturePage(int mode, short cx, short cy)
    //--------------------------------------------------// 
    // 16bit texture load ..
    case 2:
-    start=((GlobalTexturePage-16*pmult)*64)+256*1024*pmult;
+    start=256*1024*GlobalTexturePage / 16;
     wSRCPtr = psxVuw + start + (1024*g_y1) + g_x1;
     LineOffset = 1024 - (g_x2-g_x1+1); 
 
@@ -1347,7 +1347,7 @@ void LoadWndTexturePage(int mode, short cx, short cy)
  unsigned char  *cSRCPtr;
  unsigned short *wSRCPtr;
  uint32_t        LineOffset;
- int pmult = GlobalTexturePage / 16;
+ 
  uint32_t (*LTCOL)(uint32_t);
  
  LTCOL=TCF[DrawSemiTrans];
@@ -1363,7 +1363,7 @@ void LoadWndTexturePage(int mode, short cx, short cy)
    //--------------------------------------------------// 
    // 4bit texture load ..
    case 0:
-    start=((GlobalTexturePage-16*pmult)*128)+256*2048*pmult;
+    start=256*2048*GlobalTexturePage / 16;
 
     // convert CLUT to 32bits .. and then use THAT as a lookup table
 
@@ -1396,7 +1396,7 @@ void LoadWndTexturePage(int mode, short cx, short cy)
    //--------------------------------------------------//
    // 8bit texture load ..
    case 1:
-    start=((GlobalTexturePage-16*pmult)*128)+256*2048*pmult;
+    start=256*2048*GlobalTexturePage / 16;
 
     // not using a lookup table here... speeds up smaller texture areas
     cSRCPtr = psxVub + start + (2048*g_y1) + g_x1;
@@ -1414,7 +1414,7 @@ void LoadWndTexturePage(int mode, short cx, short cy)
    //--------------------------------------------------// 
    // 16bit texture load ..
    case 2:
-    start=((GlobalTexturePage-16*pmult)*64)+256*1024*pmult;
+    start=256*1024*GlobalTexturePage / 16;
 
     wSRCPtr = psxVuw + start + (1024*g_y1) + g_x1;
     LineOffset = 1024 - (g_x2-g_x1+1); 
@@ -1500,7 +1500,7 @@ void LoadPalWndTexturePage(int mode, short cx, short cy)
  unsigned char  *ta;
  unsigned char  *cSRCPtr;
  uint32_t       LineOffset;
- int            pmult = GlobalTexturePage / 16;
+ 
 
  ta = (unsigned char *)texturepart;
 
@@ -1509,7 +1509,7 @@ void LoadPalWndTexturePage(int mode, short cx, short cy)
    //--------------------------------------------------// 
    // 4bit texture load ..
    case 0:
-    start=((GlobalTexturePage-16*pmult)*128)+256*2048*pmult;
+    start=256*2048*GlobalTexturePage / 16;
 
     sxm=g_x1&1;sxh=g_x1>>1;
     if(sxm) j=g_x1+1; else j=g_x1;
@@ -1533,7 +1533,7 @@ void LoadPalWndTexturePage(int mode, short cx, short cy)
    //--------------------------------------------------// 
    // 8bit texture load ..
    case 1:
-    start=((GlobalTexturePage-16*pmult)*128)+256*2048*pmult;
+    start=256*2048*GlobalTexturePage / 16;
 
     // not using a lookup table here... speeds up smaller texture areas
     cSRCPtr = psxVub + start + (2048*g_y1) + g_x1;
@@ -1560,7 +1560,7 @@ void LoadStretchPalWndTexturePage(int mode, short cx, short cy)
  unsigned char  *ta,s;
  unsigned char  *cSRCPtr,*cOSRCPtr;
  uint32_t       LineOffset;
- int            pmult = GlobalTexturePage / 16;
+ 
 
  ldxo = TWin.Position.x1-TWin.OPosition.x1;
  ldy  = TWin.Position.y1-TWin.OPosition.y1;
@@ -1572,7 +1572,7 @@ void LoadStretchPalWndTexturePage(int mode, short cx, short cy)
    //--------------------------------------------------// 
    // 4bit texture load ..
    case 0:
-    start=((GlobalTexturePage-16*pmult)*128)+256*2048*pmult;
+    start=256*2048*GlobalTexturePage / 16;
 
     sxm=g_x1&1;sxh=g_x1>>1;
     if(sxm) j=g_x1+1; else j=g_x1;
@@ -1606,7 +1606,7 @@ void LoadStretchPalWndTexturePage(int mode, short cx, short cy)
    //--------------------------------------------------// 
    // 8bit texture load ..
    case 1:
-    start=((GlobalTexturePage-16*pmult)*128)+256*2048*pmult;
+    start=256*2048*GlobalTexturePage / 16;
 
     cSRCPtr = psxVub + start + (2048*g_y1) + g_x1;
     LineOffset = 2048 - (g_x2-g_x1+1) +ldxo; 
@@ -2485,7 +2485,7 @@ void LoadSubTexturePageSort(int mode, short cx, short cy)
  uint32_t       y2=gl_ux[4];
  uint32_t       dx=x2-x1+1;
  uint32_t       dy=y2-y1+1;
- int pmult=GlobalTexturePage/16;
+ 
  uint32_t      (*LTCOL)(uint32_t);
  unsigned int a,r,g,b,cnt,h;
  uint32_t      scol[8];
@@ -2506,7 +2506,7 @@ void LoadSubTexturePageSort(int mode, short cx, short cy)
    //--------------------------------------------------// 
    // 4bit texture load ..
    case 0:
-    start=((GlobalTexturePage-16*pmult)<<7)+524288*pmult;
+    start=524288*GlobalTexturePage / 16;
     // convert CLUT to 32bits .. and then use THAT as a lookup table
 
     wSRCPtr=psxVuw+palstart;
@@ -2549,7 +2549,7 @@ void LoadSubTexturePageSort(int mode, short cx, short cy)
    //--------------------------------------------------// 
    // 8bit texture load ..
    case 1:
-    start=((GlobalTexturePage-16*pmult)<<7)+524288*pmult;
+    start=524288*GlobalTexturePage / 16;
 
     cSRCPtr = psxVub + start + (y1<<11) + x1;
     LineOffset = 2048 - dx; 
@@ -2604,7 +2604,7 @@ void LoadSubTexturePageSort(int mode, short cx, short cy)
    //--------------------------------------------------// 
    // 16bit texture load ..
    case 2:
-    start=((GlobalTexturePage-16*pmult)<<6)+262144*pmult;
+    start=262144*GlobalTexturePage / 16;
 
     wSRCPtr = psxVuw + start + (y1<<10) + x1;
     LineOffset = 1024 - dx; 
@@ -2825,7 +2825,7 @@ void LoadPackedSubTexturePageSort(int mode, short cx, short cy)
  uint32_t       y2=gl_ux[4];
  uint32_t       dx=x2-x1+1;
  uint32_t       dy=y2-y1+1;
- int pmult=GlobalTexturePage/16;
+ 
  unsigned short (*LPTCOL)(unsigned short);
  unsigned int a,r,g,b,cnt,h;
  unsigned short scol[8];
@@ -2846,7 +2846,7 @@ void LoadPackedSubTexturePageSort(int mode, short cx, short cy)
    //--------------------------------------------------// 
    // 4bit texture load ..
    case 0:
-    start=((GlobalTexturePage-16*pmult)<<7)+524288*pmult;
+    start=524288*GlobalTexturePage / 16;
 
     wSRCPtr=psxVuw+palstart;
     row=4;do
@@ -2888,7 +2888,7 @@ void LoadPackedSubTexturePageSort(int mode, short cx, short cy)
    //--------------------------------------------------// 
    // 8bit texture load ..
    case 1:
-    start=((GlobalTexturePage-16*pmult)<<7)+524288*pmult;
+    start=524288*GlobalTexturePage / 16;
 
     cSRCPtr = psxVub + start + (y1<<11) + x1;
     LineOffset = 2048 - dx;
@@ -2937,7 +2937,7 @@ void LoadPackedSubTexturePageSort(int mode, short cx, short cy)
    //--------------------------------------------------// 
    // 16bit texture load ..
    case 2:
-    start=((GlobalTexturePage-16*pmult)<<6)+262144*pmult;
+    start=262144*GlobalTexturePage / 16;
 
     wSRCPtr = psxVuw + start + (y1<<10) + x1;
     LineOffset = 1024 - dx; 
