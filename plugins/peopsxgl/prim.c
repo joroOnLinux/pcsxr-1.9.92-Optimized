@@ -652,7 +652,7 @@ void SetRenderMode(uint32_t DrawAttributes, BOOL bSCol)
  if(bDrawTextured)                                     // texture ? build it/get it from cache
   {
    GLuint currTex;
-   if(bUsingTWin)       currTex=LoadTextureWnd(GlobalTexturePage,GlobalTextTP, ulClutID);
+   if(bUsingTWin)       currTex=LoadTextureWnd(GlobalTextTP, ulClutID);
    else if(bUsingMovie) currTex=LoadTextureMovie();
    else                 currTex=SelectSubTextureS(GlobalTextTP,ulClutID);
 
