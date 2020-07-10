@@ -87,7 +87,7 @@ short         sxmin,sxmax,symin,symax;
 void UpdateGlobalTP(unsigned short gdata)
 {
  GlobalTextAddrX = (gdata << 6) & 0x3c0;
-
+/*
  if(iGPUHeight==1024)                                  // ZN mode
   {
    if(dwGPUVersion==2)                                 // very special zn gpu
@@ -107,7 +107,9 @@ void UpdateGlobalTP(unsigned short gdata)
      GlobalTextAddrY = (unsigned short)(((gdata << 4) & 0x100) | ((gdata >> 2) & 0x200));
     }
   }
- else GlobalTextAddrY = (gdata << 4) & 0x100;          // "normal" psx gpu
+ else 
+*/ 
+ GlobalTextAddrY = (gdata << 4) & 0x100;          // "normal" psx gpu
 
  usMirror=gdata&0x3000;
  
@@ -2125,7 +2127,7 @@ void primMoveImage(unsigned char * baseAddr)
  if(imageSX<=0) return;
  if(imageSY<=0) return;
 
- if(iGPUHeight==1024 && sgpuData[7]>1024) return;
+// if(iGPUHeight==1024 && sgpuData[7]>1024) return;
 
  if((imageY0+imageSY)>iGPUHeight ||
     (imageX0+imageSX)>1024       ||

@@ -102,9 +102,6 @@ signed   int   *const psxVsl = (signed int *const)psxVSecure;
 
 unsigned short *psxVuw_eom = (unsigned short *)psxVSecure + 1024*iGPUHeight;
 
-// macro for easy access to packet information
-#define GPUCOMMAND(x) ((x>>24) & 0xff)
-
 GLfloat         gl_z=0.0f;
 BOOL            bNeedInterlaceUpdate=FALSE;
 BOOL            bNeedRGB24Update=FALSE;
@@ -1830,14 +1827,16 @@ void CALLBACK GPUwriteStatus(uint32_t gdata)
     {
      short sx=(short)(gdata & 0x3ff);
      short sy;
-
+/*
      if(iGPUHeight==1024)
       {
        if(dwGPUVersion==2) 
             sy = (short)((gdata>>12)&0x3ff);
        else sy = (short)((gdata>>10)&0x3ff);
       }
-     else sy = (short)((gdata>>10)&0x3ff);             // really: 0x1ff, but we adjust it later
+     else 
+*/     
+     sy = (short)((gdata>>10)&0x3ff);             // really: 0x1ff, but we adjust it later
 
      if (sy & 0x200) 
       {
@@ -2734,7 +2733,8 @@ long CALLBACK GPUdmaChain(uint32_t *baseAddrL, uint32_t addr)
 
  do
   {
-   if(iGPUHeight==512) addr&=0x1FFFFC;
+// if(iGPUHeight==512) 
+   addr&=0x1FFFFC;
 
 //   if(DMACommandCounter++ > 2000000) break;
    if(CheckForEndlessLoop(addr)) break;
