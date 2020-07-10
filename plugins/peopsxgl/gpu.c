@@ -64,17 +64,43 @@ static char *PluginAuthor    = N_("Pete Bernert");
 static char *libraryInfo     = N_("Based on P.E.Op.S. MesaGL Driver V1.78\nCoded by Pete Bernert\n");
 
 ////////////////////////////////////////////////////////////////////////
+// global GPU vars
+////////////////////////////////////////////////////////////////////////
+
+#define         iGPUHeight  512
+// never changed anyway, permits use  of const pointers to psx VRAM
+
+static int      GPUdataRet;
+int             lGPUstatusRet;
+char            szDispBuf[64];
+
+uint32_t        dwGPUVersion = 0;
+
+int             iGPUHeightMask = 511;
+int             GlobalTextIL = 0;
+int             iTileCheat = 0;
+
+static uint32_t      gpuDataM[256];
+static unsigned char gpuCommand = 0;
+static int           gpuDataC = 0;
+static int           gpuDataP = 0;
+
+////////////////////////////////////////////////////////////////////////
 // memory image of the PSX vram
 ////////////////////////////////////////////////////////////////////////
 
-unsigned char  *psxVSecure;
-unsigned char  *psxVub;
-signed   char  *psxVsb;
-unsigned short *psxVuw;
-unsigned short *psxVuw_eom;
-signed   short *psxVsw;
-uint32_t       *psxVul;
-signed   int   *psxVsl;
+unsigned char  psxVSecure [(iGPUHeight*2)*1024 + (1024*1024) + 512*1024] __attribute__ ((aligned(64)));
+ // always alloc one extra MB for soft drawing funcs security
+
+unsigned char  *const psxVub = psxVSecure;
+signed   char  *const psxVsb = (signed char *const)psxVSecure;
+unsigned short *const psxVuw = (unsigned short *const)psxVSecure;
+
+signed   short *const psxVsw = (signed short *const)psxVSecure;
+uint32_t       *const psxVul = (uint32_t  *const) psxVSecure;
+signed   int   *const psxVsl = (signed int *const)psxVSecure;
+
+unsigned short *psxVuw_eom = (unsigned short *)psxVSecure + 1024*iGPUHeight;
 
 // macro for easy access to packet information
 #define GPUCOMMAND(x) ((x>>24) & 0xff)
@@ -86,24 +112,6 @@ BOOL            bChangeWinMode=FALSE;
 
 uint32_t        ulStatusControl[256];
 
-////////////////////////////////////////////////////////////////////////
-// global GPU vars
-////////////////////////////////////////////////////////////////////////
-
-static int      GPUdataRet;
-int             lGPUstatusRet;
-char            szDispBuf[64];
-
-uint32_t        dwGPUVersion = 0;
-int             iGPUHeight = 512;
-int             iGPUHeightMask = 511;
-int             GlobalTextIL = 0;
-int             iTileCheat = 0;
-
-static uint32_t      gpuDataM[256];
-static unsigned char gpuCommand = 0;
-static int           gpuDataC = 0;
-static int           gpuDataP = 0;
 
 VRAMLoad_t      VRAMWrite;
 VRAMLoad_t      VRAMRead;
@@ -442,7 +450,7 @@ long CALLBACK GPUinit()
  memset(ulStatusControl,0,256*sizeof(uint32_t));
 
  // different ways of accessing PSX VRAM
-
+/*
  if (posix_memalign(&psxVSecure,8,(iGPUHeight*2)*1024 + (1024*1024)) != 0) // always alloc one extra MB for soft drawing funcs security
 	return -1;
  
@@ -454,7 +462,7 @@ long CALLBACK GPUinit()
  psxVul=(uint32_t *)psxVub;
 
  psxVuw_eom=psxVuw+1024*iGPUHeight;                    // pre-calc of end of vram
-
+*/
  memset(psxVSecure,0x00,(iGPUHeight*2)*1024 + (1024*1024));
  memset(ulGPUInfoVals,0x00,16*sizeof(uint32_t));
 
@@ -867,9 +875,9 @@ long GPUclose()                                        // LINUX CLOSE
 }
 
 ////////////////////////////////////////////////////////////////////////
-// I shot the sheriff... last function called from emu 
+// I shot the sheriff... last function called from emu -  never used
 ////////////////////////////////////////////////////////////////////////
-
+/*
 long CALLBACK GPUshutdown()
 {
  if(psxVSecure) free(psxVSecure);                      // kill emulated vram memory
@@ -877,7 +885,7 @@ long CALLBACK GPUshutdown()
 
  return 0;
 }
-
+*/
 ////////////////////////////////////////////////////////////////////////
 // paint it black: simple func to clean up optical border garbage
 ////////////////////////////////////////////////////////////////////////
