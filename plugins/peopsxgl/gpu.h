@@ -28,6 +28,9 @@
 #define GREEN(x) ((x>>8) & 0xff)
 #define COLOR(x) (x & 0xffffff)
 
+#define iGPUHeight  512
+#define iGPUHeightMask 511
+
 void           DoSnapShot(void);
 void           updateDisplay(void);
 void           updateFrontDisplay(void);

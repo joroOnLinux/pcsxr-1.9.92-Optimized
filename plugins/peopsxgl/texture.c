@@ -546,7 +546,7 @@ void CheckTextureMemory(void)
 void InitializeTextureStore() 
 {
  int i,j;
-
+/*
  if(iGPUHeight==1024)
   {
    MAXTPAGES     = 64;
@@ -556,12 +556,13 @@ void InitializeTextureStore()
    iTexGarbageCollection=0;
   }
  else
-  {
+*/ 
+  
    MAXTPAGES     = 32;
    CLUTMASK      = 0x7fff;
    CLUTYMASK     = 0x1ff;
    MAXSORTTEX    = 196;
-  }
+  
 
  memset(vertex,0,4*sizeof(OGLVertex));                 // init vertices
 
@@ -712,7 +713,7 @@ void InvalidateWndTextureArea(int X, int Y, int W, int H)
  if(H<0) H=0;if(H>iGPUHeightMask)  H=iGPUHeightMask;
  W++;H++;
 
- if(iGPUHeight==1024) iYM=3;
+// if(iGPUHeight==1024) iYM=3;
 
  py1=min(iYM,Y>>8);
  py2=min(iYM,H>>8);                                    // y: 0 or 1
@@ -944,9 +945,17 @@ void LoadStretchPackedWndTexturePage(int mode, short cx, short cy)
 {
  uint32_t        start, row, column, j, sxh, sxm, ldx, ldy, ldxo;
  unsigned int    palstart;
- unsigned short *px, *pa, *ta;
- unsigned char  *cSRCPtr,*cOSRCPtr;
- unsigned short *wSRCPtr,*wOSRCPtr;
+
+ unsigned short * restrict px;
+ unsigned short * restrict pa;
+ unsigned short * restrict ta;
+ 
+ unsigned char  * restrict cSRCPtr;
+ unsigned char  * restrict cOSRCPtr;
+ 
+ unsigned short * restrict wSRCPtr;
+ unsigned short * restrict wOSRCPtr;
+ 
  uint32_t        LineOffset;
  unsigned short  s;
  
@@ -1099,9 +1108,17 @@ void LoadStretchWndTexturePage(int mode, short cx, short cy)
 {
  uint32_t       start,row,column,j,sxh,sxm,ldx,ldy,ldxo,s;
  unsigned int   palstart;
- uint32_t       *px,*pa,*ta;
- unsigned char  *cSRCPtr,*cOSRCPtr;
- unsigned short *wSRCPtr,*wOSRCPtr;
+ 
+ uint32_t       * restrict px;
+ uint32_t       * restrict pa;
+ uint32_t       * restrict ta;
+ 
+ unsigned char  * restrict cSRCPtr;
+ unsigned char  * restrict cOSRCPtr;
+ 
+ unsigned short * restrict wSRCPtr;
+ unsigned short * restrict wOSRCPtr;
+ 
  uint32_t       LineOffset;
  
  uint32_t       (*LTCOL)(uint32_t);
@@ -1249,9 +1266,17 @@ void LoadPackedWndTexturePage(int mode, short cx, short cy)
 {
  uint32_t       start,row,column,j,sxh,sxm;
  unsigned int   palstart;
- unsigned short *px,*pa,*ta;
- unsigned char  *cSRCPtr;
- unsigned short *wSRCPtr;
+
+ unsigned short * restrict px;
+ unsigned short * restrict pa;
+ unsigned short * restrict ta;
+ 
+ unsigned char  * restrict cSRCPtr;
+ unsigned char  * restrict cOSRCPtr;
+ 
+ unsigned short * restrict wSRCPtr;
+ unsigned short * restrict wOSRCPtr;
+
  uint32_t        LineOffset;
  
  unsigned short (*LPTCOL)(unsigned short);
@@ -1343,9 +1368,17 @@ void LoadWndTexturePage(int mode, short cx, short cy)
 {
  uint32_t       start,row,column,j,sxh,sxm;
  unsigned int   palstart;
- uint32_t       *px,*pa,*ta;
- unsigned char  *cSRCPtr;
- unsigned short *wSRCPtr;
+
+ uint32_t       * restrict px;
+ uint32_t       * restrict pa;
+ uint32_t       * restrict ta;
+ 
+ unsigned char  * restrict cSRCPtr;
+ unsigned char  * restrict cOSRCPtr;
+ 
+ unsigned short * restrict wSRCPtr;
+ unsigned short * restrict wOSRCPtr;
+
  uint32_t        LineOffset;
  
  uint32_t (*LTCOL)(uint32_t);
@@ -1441,8 +1474,9 @@ void LoadWndTexturePage(int mode, short cx, short cy)
 void UploadTexWndPal(int mode,short cx,short cy)
 {
  unsigned int i,iSize;
- unsigned short *wSrcPtr;
- uint32_t *ta = (uint32_t *)texturepart;
+ unsigned short * restrict wSrcPtr;
+ 
+ uint32_t * restrict ta = (uint32_t *)texturepart;
 
  wSrcPtr = psxVuw + cx + (cy * 1024);
  if (mode == 0) i = 4; else i = 64;
@@ -1497,11 +1531,12 @@ void DefinePalTextureWnd(void)
 void LoadPalWndTexturePage(int mode, short cx, short cy)
 {
  uint32_t       start,row,column,j,sxh,sxm;
- unsigned char  *ta;
- unsigned char  *cSRCPtr;
+ 
+ unsigned char  * restrict ta;
+ unsigned char  * restrict cSRCPtr;
+ 
  uint32_t       LineOffset;
  
-
  ta = (unsigned char *)texturepart;
 
  switch (mode)
@@ -1511,8 +1546,11 @@ void LoadPalWndTexturePage(int mode, short cx, short cy)
    case 0:
     start=256*2048*GlobalTexturePage / 16;
 
-    sxm=g_x1&1;sxh=g_x1>>1;
-    if(sxm) j=g_x1+1; else j=g_x1;
+    sxm=g_x1&1;
+    sxh=g_x1>>1;
+    
+    j = (sxm ? g_x1+1 : g_x1);
+    
     cSRCPtr = psxVub + start + (2048*g_y1) + sxh;
     for(column=g_y1;column<=g_y2;column++)
      {
@@ -1557,10 +1595,12 @@ void LoadPalWndTexturePage(int mode, short cx, short cy)
 void LoadStretchPalWndTexturePage(int mode, short cx, short cy)
 {
  uint32_t       start,row,column,j,sxh,sxm,ldx,ldy,ldxo;
- unsigned char  *ta,s;
- unsigned char  *cSRCPtr,*cOSRCPtr;
+ unsigned char  * restrict ta;
+ unsigned char  * restrict cSRCPtr;
+ unsigned char  * restrict cOSRCPtr;
+
  uint32_t       LineOffset;
- 
+ unsigned char  s;
 
  ldxo = TWin.Position.x1-TWin.OPosition.x1;
  ldy  = TWin.Position.y1-TWin.OPosition.y1;
@@ -1574,8 +1614,11 @@ void LoadStretchPalWndTexturePage(int mode, short cx, short cy)
    case 0:
     start=256*2048*GlobalTexturePage / 16;
 
-    sxm=g_x1&1;sxh=g_x1>>1;
-    if(sxm) j=g_x1+1; else j=g_x1;
+    sxm=g_x1&1;
+    sxh=g_x1>>1;
+    
+    j=(sxm ? g_x1+1 : g_x1);
+    
     cSRCPtr = psxVub + start + (2048*g_y1) + sxh;
     for(column=g_y1;column<=g_y2;column++)
      {
@@ -1845,7 +1888,7 @@ unsigned char * LoadDirectMovieFast(void)
  int row,column;
  unsigned int startxy;
 
- uint32_t *ta=(uint32_t *)texturepart;
+ uint32_t * restrict ta=(uint32_t *)texturepart;
 
  if(PSXDisplay.RGB24)
   {
@@ -2474,9 +2517,14 @@ void LoadSubTexturePageSort(int mode, short cx, short cy)
 {
  uint32_t       start,row,column,j,sxh,sxm;
  unsigned int   palstart;
- uint32_t       *px,*pa,*ta;
- unsigned char  *cSRCPtr;
- unsigned short *wSRCPtr;
+ 
+ uint32_t       * restrict px;
+ uint32_t       * restrict pa;
+ uint32_t       * restrict ta;
+ 
+ unsigned char  * restrict cSRCPtr;
+ unsigned short * restrict wSRCPtr;
+ 
  uint32_t       LineOffset;
  uint32_t       x2a,xalign=0;
  uint32_t       x1=gl_ux[7];
@@ -2511,19 +2559,13 @@ void LoadSubTexturePageSort(int mode, short cx, short cy)
 
     wSRCPtr=psxVuw+palstart;
 
-    row=4;do
-     {
-      *px    =LTCOL(*wSRCPtr);
-      *(px+1)=LTCOL(*(wSRCPtr+1));
-      *(px+2)=LTCOL(*(wSRCPtr+2));
-      *(px+3)=LTCOL(*(wSRCPtr+3));
-      row--;px+=4;wSRCPtr+=4;
-     }
-    while (row);
+    for (row=0;row < 16;row++)
+      *px++ = LTCOL(*wSRCPtr++);
 
-    x2a=x2?(x2-1):0;//if(x2) x2a=x2-1; else x2a=0;
-    sxm=x1&1;sxh=x1>>1;
-    j=sxm?(x1+1):x1;//if(sxm) j=x1+1; else j=x1;
+    x2a=x2?(x2-1):0;
+    sxm=x1&1;
+    sxh=x1>>1;
+    j=sxm?(x1+1):x1;
     for(column=y1;column<=y2;column++)
      {
       cSRCPtr = psxVub + start + (column<<11) + sxh;
@@ -2558,15 +2600,8 @@ void LoadSubTexturePageSort(int mode, short cx, short cy)
      {
       wSRCPtr=psxVuw+palstart;
 
-      row=64;do
-       {
-        *px    =LTCOL(*wSRCPtr);
-        *(px+1)=LTCOL(*(wSRCPtr+1));
-        *(px+2)=LTCOL(*(wSRCPtr+2));
-        *(px+3)=LTCOL(*(wSRCPtr+3));
-        row--;px+=4;wSRCPtr+=4;
-       }
-      while (row);
+      for (row=0;row < 256; row++)
+        *px++    =LTCOL(*wSRCPtr++);
 
       column=dy;do 
        {
@@ -2814,9 +2849,14 @@ void LoadPackedSubTexturePageSort(int mode, short cx, short cy)
 {
  uint32_t       start,row,column,j,sxh,sxm;
  unsigned int   palstart;
- unsigned short *px,*pa,*ta;
- unsigned char  *cSRCPtr;
- unsigned short *wSRCPtr;
+ 
+ unsigned short * restrict px;
+ unsigned short * restrict pa;
+ unsigned short * restrict ta;
+ 
+ unsigned char  * restrict cSRCPtr;
+ unsigned short * restrict wSRCPtr;
+ 
  uint32_t       LineOffset;
  uint32_t       x2a,xalign=0;
  uint32_t       x1=gl_ux[7];

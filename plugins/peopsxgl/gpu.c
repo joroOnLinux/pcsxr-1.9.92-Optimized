@@ -67,16 +67,11 @@ static char *libraryInfo     = N_("Based on P.E.Op.S. MesaGL Driver V1.78\nCoded
 // global GPU vars
 ////////////////////////////////////////////////////////////////////////
 
-#define         iGPUHeight  512
-// never changed anyway, permits use  of const pointers to psx VRAM
-
 static int      GPUdataRet;
 int             lGPUstatusRet;
 char            szDispBuf[64];
 
 uint32_t        dwGPUVersion = 0;
-
-int             iGPUHeightMask = 511;
 int             GlobalTextIL = 0;
 int             iTileCheat = 0;
 
