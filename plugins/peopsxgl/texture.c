@@ -841,9 +841,10 @@ void InvalidateSubSTextureArea(int X, int Y, int W, int H)
        if(W<x2)  x2=W;
        if(x2<x1) {sw=x1;x1=x2;x2=sw;}
 
-       if (dwGPUVersion == 2)
+/*     if (dwGPUVersion == 2)
         npos.l=0x00ff00ff;
        else
+*/ 
         npos.l=((x1-xa)<<(26-k))|((x2-xa)<<(18-k))|y1|y2;
 
         {

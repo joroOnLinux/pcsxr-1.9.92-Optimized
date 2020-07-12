@@ -1644,7 +1644,7 @@ void cmdDrawAreaStart(unsigned char * baseAddr)
 
  drawX = gdata & 0x3ff;                                // for soft drawing
  if(drawX>=1024) drawX=1023;
-
+/*
  if(dwGPUVersion==2)
   {
    ulGPUInfoVals[INFO_DRAWSTART]=gdata&0x3FFFFF;
@@ -1652,9 +1652,10 @@ void cmdDrawAreaStart(unsigned char * baseAddr)
   }
  else
   {
+*/ 
    ulGPUInfoVals[INFO_DRAWSTART]=gdata&0xFFFFF;
    drawY  = (gdata>>10)&0x3ff;
-  }
+//}
 
  if(drawY>=iGPUHeight) drawY=iGPUHeightMask;
 
@@ -1675,7 +1676,7 @@ void cmdDrawAreaEnd(unsigned char * baseAddr)
 
  drawW = gdata & 0x3ff;                                // for soft drawing
  if(drawW>=1024) drawW=1023;
-
+/*
  if(dwGPUVersion==2)
   {
    ulGPUInfoVals[INFO_DRAWEND]=gdata&0x3FFFFF;
@@ -1683,9 +1684,10 @@ void cmdDrawAreaEnd(unsigned char * baseAddr)
   }
  else
   {
+*/ 
    ulGPUInfoVals[INFO_DRAWEND]=gdata&0xFFFFF;
    drawH  = (gdata>>10)&0x3ff;
-  }
+//  }
  
  if(drawH>=iGPUHeight) drawH=iGPUHeightMask;
 
@@ -1710,7 +1712,7 @@ void cmdDrawOffset(unsigned char * baseAddr)
 
  PreviousPSXDisplay.DrawOffset.x = 
   PSXDisplay.DrawOffset.x = (short)(gdata & 0x7ff);
-
+/*
  if (dwGPUVersion == 2)
   {
    ulGPUInfoVals[INFO_DRAWOFF] = gdata&0x7FFFFF;
@@ -1718,9 +1720,10 @@ void cmdDrawOffset(unsigned char * baseAddr)
   }
  else
   {
+*/ 
    ulGPUInfoVals[INFO_DRAWOFF]=gdata&0x3FFFFF;
    PSXDisplay.DrawOffset.y = (short)((gdata>>11) & 0x7ff);
-  }
+//}
  
  PSXDisplay.DrawOffset.x=(short)(((int)PSXDisplay.DrawOffset.x<<21)>>21);
  PSXDisplay.DrawOffset.y=(short)(((int)PSXDisplay.DrawOffset.y<<21)>>21);

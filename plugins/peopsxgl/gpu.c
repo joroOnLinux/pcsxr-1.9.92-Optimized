@@ -2014,9 +2014,10 @@ void CALLBACK GPUwriteStatus(uint32_t gdata)
        GPUdataRet=ulGPUInfoVals[INFO_DRAWOFF];         // draw offset
        return;
       case 0x07:
-       if(dwGPUVersion==2)
-            GPUdataRet=0x01;
-       else GPUdataRet=0x02;                           // gpu type
+//     if(dwGPUVersion==2)
+//          GPUdataRet=0x01;
+//     else 
+			GPUdataRet=0x02;                           // gpu type
        return;
       case 0x08:
       case 0x0F:                                       // some bios addr?
