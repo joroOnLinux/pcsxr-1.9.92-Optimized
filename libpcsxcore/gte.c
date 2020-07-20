@@ -26,6 +26,10 @@
 #include "gte.h"
 #include "psxmem.h"
 
+#ifdef __ARM_NEON
+#include <arm_neon.h>
+#endif
+
 #define VX(n) (n < 3 ? psxRegs.CP2D.p[n << 1].sw.l : psxRegs.CP2D.p[9].sw.l)
 #define VY(n) (n < 3 ? psxRegs.CP2D.p[n << 1].sw.h : psxRegs.CP2D.p[10].sw.l)
 #define VZ(n) (n < 3 ? psxRegs.CP2D.p[(n << 1) + 1].sw.l : psxRegs.CP2D.p[11].sw.l)
@@ -356,9 +360,39 @@ void gteRTPS() {
 #endif
 	gteFLAG = 0;
 
+#ifdef __ARM_NEON
+ int16x4_t clearLastOct = vreinterpret_s16_s64(vcreate_s64(0x0000ffffffffffff));
+ int16x4_t CP2C_1,CP2C_2,CP2C_3,CP2D;
+ 
+ int32x4_t prodVec1,prodVec2,prodVec3;
+ 
+// uint32x4_t CP2Cr;
+
+// CP2Cr = vld1q_u32(&psxRegs.CP2C.r[5]);
+// CP2Cr = vshlq_n_u32(CP2Cr,12);
+ 
+ CP2C_1 = vld1_s16(&psxRegs.CP2C.p[0]);
+ CP2C_2 = vld1_s16(&psxRegs.CP2C.p[1].sw.h);
+ CP2C_3 = vld1_s16(&psxRegs.CP2C.p[3].sw.l);
+ CP2D = vld1_s16(&psxRegs.CP2D.p[0]);
+
+ CP2C_1 = vand_s16(clearLastOct,CP2C_1);
+ CP2C_2 = vand_s16(clearLastOct,CP2C_2);
+ CP2C_3 = vand_s16(clearLastOct,CP2C_3);
+ CP2D = vand_s16(clearLastOct,CP2D);
+ 
+ prodVec1 = vmull_s16(CP2C_1,CP2D);
+ prodVec2 = vmull_s16(CP2C_2,CP2D);
+ prodVec3 = vmull_s16(CP2C_3,CP2D);
+
+ psxRegs.CP2D.r[25] = A1((((s64)gteTRX << 12) + vaddvq_s32(prodVec1)) >> 12);
+ psxRegs.CP2D.r[26] = A2((((s64)gteTRY << 12) + vaddvq_s32(prodVec2)) >> 12);
+ psxRegs.CP2D.r[27] = A3((((s64)gteTRZ << 12) + vaddvq_s32(prodVec3)) >> 12);
+#else
 	gteMAC1 = A1((((s64)gteTRX << 12) + (gteR11 * gteVX0) + (gteR12 * gteVY0) + (gteR13 * gteVZ0)) >> 12);
 	gteMAC2 = A2((((s64)gteTRY << 12) + (gteR21 * gteVX0) + (gteR22 * gteVY0) + (gteR23 * gteVZ0)) >> 12);
 	gteMAC3 = A3((((s64)gteTRZ << 12) + (gteR31 * gteVX0) + (gteR32 * gteVY0) + (gteR33 * gteVZ0)) >> 12);
+#endif
 	gteIR1 = limB1(gteMAC1, 0);
 	gteIR2 = limB2(gteMAC2, 0);
 	gteIR3 = limB3(gteMAC3, 0);
