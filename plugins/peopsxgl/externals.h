@@ -402,8 +402,8 @@ extern uint32_t      ulKeybits;
 #ifndef _IN_ZN
 
 extern uint32_t      dwGPUVersion;
-extern int           iGPUHeight;
-extern int           iGPUHeightMask;
+//extern int           iGPUHeight;
+//extern int           iGPUHeightMask;
 extern int           GlobalTextIL;
 extern int           iTileCheat;
 
